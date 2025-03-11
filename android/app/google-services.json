@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "388665219733",
+    "project_id": "visitor-2025",
+    "storage_bucket": "visitor-2025.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:388665219733:android:1ebbc5ce837febfad6d99c",
+        "android_client_info": {
+          "package_name": "com.example.vms"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuQC6qNtIa89mgfNbhk4PV0beTfaqNlsA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
