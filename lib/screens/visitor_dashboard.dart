@@ -8,11 +8,11 @@ import '../components/banner.dart';
 import '../components/button.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
+// ignore: must_be_immutable
 class VisitorDashboard extends StatelessWidget {
+  VisitorDashboard({required this.loggedInUser, super.key});
   UserModel loggedInUser = UserModel();
-  VisitorDashboard({required this.loggedInUser, Key? key}) : super(key: key);
   final firebase_storage.FirebaseStorage storage =
       firebase_storage.FirebaseStorage.instance;
   final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
@@ -30,6 +30,7 @@ class VisitorDashboard extends StatelessWidget {
       return passes;
     });
   }
+
   Future<List<PassModel>> getUserAllPasses() async {
     return firebaseFirestore
         .collection('passes')
@@ -43,6 +44,7 @@ class VisitorDashboard extends StatelessWidget {
       return passes;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -53,39 +55,33 @@ class VisitorDashboard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             const TopBanner(),
-            makeButton(
-                "Register Visit",
-                () => {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (BuildContext context) {
-                        return const RegisterVisit();
-                      }))
-                    }),
-            makeButton(
-                "View Active Passes",
-                () => {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (BuildContext context) {
-                        return PassListScreen(getUserActivePasses(), (pass){
-
-                          Navigator.push(context, MaterialPageRoute(
-                              builder: (BuildContext context) {
-                                return PassScreen(pass);
-                              }));
-                        });
-                      }))
-                    }),
-            makeButton("View All Passes", () => {
+            makeButton("Register Visit", () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (BuildContext context) {
-                    return PassListScreen(getUserAllPasses(), (pass){
-
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (BuildContext context) {
-                            return PassScreen(pass);
-                          }));
-                    });
-                  }))
+                return const RegisterVisit();
+              }));
+            }),
+            makeButton("View Active Passes", () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return PassListScreen(getUserActivePasses(), (pass) {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (BuildContext context) {
+                    return PassScreen(pass);
+                  }));
+                });
+              }));
+            }),
+            makeButton("View All Passes", () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return PassListScreen(getUserAllPasses(), (pass) {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (BuildContext context) {
+                    return PassScreen(pass);
+                  }));
+                });
+              }));
             }),
             BottomBanner(
                 name: "${loggedInUser.firstName} ${loggedInUser.secondName}",

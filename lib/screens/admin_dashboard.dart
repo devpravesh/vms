@@ -52,32 +52,28 @@ class AdminDashboard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             const TopBanner(),
-            makeButton(
-                "View Active Visitors",
-                () => {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (BuildContext context) {
-                        return PassListScreen(getActivePasses(), (pass) {
-                          Navigator.push(context, MaterialPageRoute(
-                              builder: (BuildContext context) {
-                            return PassScreen(pass);
-                          }));
-                        });
-                      }))
-                    }),
-            makeButton(
-                "View All Visitors",
-                () => {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (BuildContext context) {
-                        return PassListScreen(getAllPasses(), (pass) {
-                          Navigator.push(context, MaterialPageRoute(
-                              builder: (BuildContext context) {
-                            return PassScreen(pass);
-                          }));
-                        });
-                      }))
-                    }),
+            makeButton("View Active Visitors", () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return PassListScreen(getActivePasses(), (pass) {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (BuildContext context) {
+                    return PassScreen(pass);
+                  }));
+                });
+              }));
+            }),
+            makeButton("View All Visitors", () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return PassListScreen(getAllPasses(), (pass) {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (BuildContext context) {
+                    return PassScreen(pass);
+                  }));
+                });
+              }));
+            }),
             makeButton("Checkout Visitor", () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (BuildContext context) {

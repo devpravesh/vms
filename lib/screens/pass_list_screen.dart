@@ -47,10 +47,10 @@ class PassListScreenState extends State<PassListScreen> {
           ),
         ),
         body: loading
-            ? Column(
+            ? const Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   SpinKitRotatingCircle(
                     color: Colors.white,
                     size: 50.0,
@@ -111,7 +111,7 @@ class ListItemState extends State<ListItem> {
   Widget build(BuildContext context) {
     return RawMaterialButton(
         elevation: 20,
-        onPressed:  () =>widget.onTap(widget.pass),
+        onPressed: () => widget.onTap(widget.pass),
         child: Container(
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
             // decoration:
@@ -140,9 +140,9 @@ class ListItemState extends State<ListItem> {
                         ),
                       ),
                 const SizedBox(width: 10),
-                Column(
+                const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text("Name ", style: TextStyle(fontSize: 16)),
                       Text("Host ", style: TextStyle(fontSize: 16)),
                     ]),

@@ -26,7 +26,6 @@ class PassScreenState extends State<PassScreen> {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,16 +75,20 @@ class PassScreenState extends State<PassScreen> {
                     ),
                   ),
           ),
-          ListItem(Icons.person_rounded, "Name", widget.passModel.name?? "none"),
-          ListItem(Icons.phone, "Contact", widget.passModel.contactInfo?? "none"),
-          ListItem(Icons.email, "Email", widget.passModel.email?? "none"),
-          ListItem(Icons.card_membership, "Id Card", widget.passModel.idType?? "none"),
-          ListItem(Icons.person_rounded, "Host Name", widget.passModel.hostName?? "none"),
-          ListItem(Icons.mail, "Host Email", widget.passModel.hostEmail?? "none"),
+          ListItem(
+              Icons.person_rounded, "Name", widget.passModel.name ?? "none"),
+          ListItem(
+              Icons.phone, "Contact", widget.passModel.contactInfo ?? "none"),
+          ListItem(Icons.email, "Email", widget.passModel.email ?? "none"),
+          ListItem(Icons.card_membership, "Id Card",
+              widget.passModel.idType ?? "none"),
+          ListItem(Icons.person_rounded, "Host Name",
+              widget.passModel.hostName ?? "none"),
+          ListItem(
+              Icons.mail, "Host Email", widget.passModel.hostEmail ?? "none"),
           ListItem(Icons.place, "Venue", widget.passModel.location ?? "none"),
-          ListItem(Icons.calendar_today_outlined, "Days", widget.passModel.days.toString()),
-
-
+          ListItem(Icons.calendar_today_outlined, "Days",
+              widget.passModel.days.toString()),
         ],
       ),
     );
@@ -95,18 +98,19 @@ class PassScreenState extends State<PassScreen> {
 class ListItem extends StatelessWidget {
   final IconData icon;
   final String type, value;
-  const ListItem(this.icon, this.type,this.value, {Key? key}) : super(key: key);
+  const ListItem(this.icon, this.type, this.value, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(padding: const EdgeInsets.fromLTRB(20, 50, 20, 0), child: Row(mainAxisAlignment: MainAxisAlignment.start,
-    children : [
-      Icon(icon),
-      const SizedBox(width: 10),
-      SizedBox(width: 100, child: Text(type)),
-      Expanded(child: Text(value, style: const TextStyle(color: Colors.grey)))
-    ]
-    ));
+    return Padding(
+        padding: const EdgeInsets.fromLTRB(20, 50, 20, 0),
+        child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+          Icon(icon),
+          const SizedBox(width: 10),
+          SizedBox(width: 100, child: Text(type)),
+          Expanded(
+              child: Text(value, style: const TextStyle(color: Colors.grey)))
+        ]));
   }
-
 }
