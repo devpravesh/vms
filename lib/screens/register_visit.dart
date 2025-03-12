@@ -32,6 +32,17 @@ class _RegisterVisitState extends State<RegisterVisit> {
   String? errorMessage;
 
   String idTypeSelected = "Aadhaar";
+  String branch = "";
+
+  String department = "Diploma";
+
+  List<String> getBranch() {
+    if (department == "Diploma") {
+      return ["CSEAIML", "Computer Engineer", "Electrical"];
+    } else {
+      return [];
+    }
+  }
 
   // our form key
   final _formKey = GlobalKey<FormState>();
@@ -133,13 +144,6 @@ class _RegisterVisitState extends State<RegisterVisit> {
           ),
           borderRadius: BorderRadius.circular(10),
         ),
-        // decoration: InputDecoration(
-        //   prefixIcon: const Icon(Icons.calendar_today_outlined),
-        //   contentPadding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
-        //   hintText: "Enter number of days",
-        //   border: OutlineInputBorder(
-        //     borderRadius: BorderRadius.circular(10),
-        //   ),
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -373,7 +377,44 @@ class _RegisterVisitState extends State<RegisterVisit> {
       ),
     );
     final submitButton = makeButton("Submit", submit);
-
+    final branchField = Container(
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.grey,
+        ),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          const Icon(Icons.school),
+          const SizedBox(width: 10),
+          Expanded(
+            child: DropdownButton<String>(
+              hint: const Text("Please select Branch"),
+              isExpanded: true,
+              value: branch.isNotEmpty ? branch : null,
+              elevation: 16,
+              underline: Container(
+                height: 2,
+              ),
+              onChanged: (String? newValue) {
+                setState(() {
+                  branch = newValue!;
+                });
+              },
+              items: getBranch().map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -415,6 +456,33 @@ class _RegisterVisitState extends State<RegisterVisit> {
                     const SizedBox(height: 20),
                     hostEmailField,
                     const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Radio<String>(
+                          value: 'Diploma',
+                          groupValue: department,
+                          onChanged: (String? value) {
+                            setState(() {
+                              department = value!;
+                            });
+                          },
+                        ),
+                        const Text('Diploma'),
+                        Radio<String>(
+                          value: 'Degree',
+                          groupValue: department,
+                          onChanged: (String? value) {
+                            setState(() {
+                              department = value!;
+                            });
+                          },
+                        ),
+                        const Text('Degree'),
+                      ],
+                    ),
+                    branchField,
+                    const SizedBox(height: 20),
                     venueLocation,
                     const SizedBox(height: 20),
                     days,
@@ -453,11 +521,13 @@ class _RegisterVisitState extends State<RegisterVisit> {
     var uuid = const Uuid();
     passModel.passSecret = uuid.v1();
     passModel.userId = user?.uid;
-    passModel.email = user!.email;
+    passModel.email = emailEditingController.text;
     passModel.name = nameEditingController.text;
     passModel.contactInfo = contactInfoController.text;
     passModel.idType = idTypeSelected;
     passModel.idValue = idEditingController.text;
+    passModel.department = department;
+    passModel.branch = branch;
     passModel.days = int.parse(dayInfoController.text);
     passModel.hostName = hostNameEditingController.text;
     passModel.hostEmail = hostEmailEditingController.text;
@@ -471,7 +541,7 @@ class _RegisterVisitState extends State<RegisterVisit> {
         .then((value) => {passModel.uid = value.id});
 
     await Future.wait([
-      firebaseFirestore.collection("users").doc(user.uid).update({
+      firebaseFirestore.collection("users").doc(user!.uid).update({
         'passes': FieldValue.arrayUnion([passModel.uid!])
       }),
       uploadFile(passModel.uid!),

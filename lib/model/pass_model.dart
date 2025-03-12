@@ -7,6 +7,8 @@ class PassModel {
   String? hostEmail;
   String? contactInfo;
   String? idType;
+  String? department;
+  String? branch;
   String? idValue;
   String? location;
   int? days;
@@ -24,12 +26,13 @@ class PassModel {
       this.days,
       this.contactInfo,
       this.idType,
+      this.department,
+      this.branch,
       this.idValue,
       this.location,
       this.isActive,
       this.isVerified,
-      this.passSecret
-      });
+      this.passSecret});
 
   // receiving data from server
   factory PassModel.fromMap(id, map) {
@@ -44,10 +47,12 @@ class PassModel {
         contactInfo: map['contactInfo'],
         idType: map['idType'],
         idValue: map['idType'],
+        department: map['department'],
+        branch: map['branch'],
         location: map['Location'],
         isActive: map['isActive'],
         isVerified: map['isVerified'],
-        passSecret:map['x000fasts']);
+        passSecret: map['x000fasts']);
   }
 
   // sending data to our server
@@ -60,7 +65,8 @@ class PassModel {
       'hostName': hostName,
       'days': days,
       'idType': idType,
-      'idValue': idValue,
+      'department': department,
+      'branch': branch,
       'contactInfo': contactInfo,
       'location': location,
       'isActive': isActive,
