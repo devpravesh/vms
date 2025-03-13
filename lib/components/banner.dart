@@ -8,7 +8,7 @@ class TopBanner extends StatelessWidget {
     return Column(children: <Widget>[
       SizedBox(
         height: 120,
-        child: Image.asset("assets/logo.jpg", fit: BoxFit.contain),
+        child: Image.asset("assets/college.jpeg", fit: BoxFit.contain),
       ),
       const Text(
         "Visitor Management System",
