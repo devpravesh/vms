@@ -1,5 +1,8 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -11,8 +14,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
 import 'package:vms/screens/pass_screen.dart';
 import 'package:http/http.dart' as http;
-
-import '../secret.dart';
 
 class RegisterVisit extends StatefulWidget {
   const RegisterVisit({super.key});
@@ -32,16 +33,64 @@ class _RegisterVisitState extends State<RegisterVisit> {
   String? errorMessage;
 
   String idTypeSelected = "Aadhaar";
-  String branch = "";
+  // String branch = "";
 
-  String department = "Diploma";
+  String department = "Degree";
 
-  List<String> getBranch() {
-    if (department == "Diploma") {
-      return ["CSEAIML", "Computer Engineer", "Electrical"];
-    } else {
-      return [];
+  // List<String> getBranch() {
+  //   if (department == "Diploma") {
+  //     return ["CSEAIML", "Computer Engineer", "Electrical"];
+  //   } else {
+  //     return [];
+  //   }
+  // }
+
+  Future getAllBranches() async {
+    final usersSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where("admin", isEqualTo: true)
+        .get();
+    Map<String, Map<String, List<String>>> streamToBranchMobiles = {};
+
+    for (var doc in usersSnapshot.docs) {
+      final data = doc.data();
+      final stream = data['stream'];
+      final branch = data['branch'];
+      final mobile = data['mobile'];
+
+      if (stream != null && branch != null && mobile != null) {
+        // Initialize if stream not present
+        streamToBranchMobiles.putIfAbsent(stream, () => {});
+        // Initialize if branch not present under that stream
+        streamToBranchMobiles[stream]!.putIfAbsent(branch, () => []);
+        // Add mobile
+        streamToBranchMobiles[stream]![branch]!.add(mobile.toString());
+      }
     }
+
+    setState(() {
+      streamToBranchList = {
+        for (var stream in streamToBranchMobiles.keys)
+          stream: streamToBranchMobiles[stream]!
+      };
+    });
+
+// Convert sets to lists
+  }
+
+  Map<String, Map<String, List<String>>> streamToBranchList = {};
+
+  // List<String?> _branches = [];
+  String selectedMobile = '';
+  String _selectedBranch = '';
+  @override
+  void initState() {
+    fetchBranches();
+    super.initState();
+  }
+
+  void fetchBranches() async {
+    await getAllBranches();
   }
 
   // our form key
@@ -108,7 +157,8 @@ class _RegisterVisitState extends State<RegisterVisit> {
 
   @override
   Widget build(BuildContext context) {
-    //first name field
+    final branchList = streamToBranchList[department]?.keys.toList() ?? [];
+
     final nameField = TextFormField(
         autofocus: false,
         controller: nameEditingController,
@@ -394,20 +444,25 @@ class _RegisterVisitState extends State<RegisterVisit> {
             child: DropdownButton<String>(
               hint: const Text("Please select Branch"),
               isExpanded: true,
-              value: branch.isNotEmpty ? branch : null,
+              value:
+                  branchList.contains(_selectedBranch) ? _selectedBranch : null,
               elevation: 16,
               underline: Container(
                 height: 2,
               ),
               onChanged: (String? newValue) {
+                selectedMobile =
+                    streamToBranchList[department]?[newValue]?[0].toString() ??
+                        '';
+                print(selectedMobile);
                 setState(() {
-                  branch = newValue!;
+                  _selectedBranch = newValue!;
                 });
               },
-              items: getBranch().map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
+              items: streamToBranchList[department]?.keys.map((branch) {
+                return DropdownMenuItem(
+                  value: branch,
+                  child: Text(branch),
                 );
               }).toList(),
             ),
@@ -527,7 +582,7 @@ class _RegisterVisitState extends State<RegisterVisit> {
     passModel.idType = idTypeSelected;
     passModel.idValue = idEditingController.text;
     passModel.department = department;
-    passModel.branch = branch;
+    passModel.branch = _selectedBranch;
     passModel.days = int.parse(dayInfoController.text);
     passModel.hostName = hostNameEditingController.text;
     passModel.hostEmail = hostEmailEditingController.text;
@@ -545,17 +600,45 @@ class _RegisterVisitState extends State<RegisterVisit> {
         'passes': FieldValue.arrayUnion([passModel.uid!])
       }),
       uploadFile(passModel.uid!),
-      // http.post(Uri.parse('https://vms-iiita.herokuapp.com/send_email'),
-      //     headers: <String, String>{
-      //       'Authorization': emailAuthToken,
-      //     },
-      //     body: <String, String>{
-      //       'name': passModel.name ?? 'error',
-      //       'secret': passModel.uid ?? "error",
-      //       'email': passModel.hostEmail ?? "error"
-      //     })
     ]);
+    if (selectedMobile.isNotEmpty) {
+      const bannerImageUrl =
+          'https://armiet.in/wp-content/uploads/2020/08/Armiet-logo-12.png';
+      final message = Uri.encodeComponent('''
+Hi, you have a new visitor!
+details are as follows:
+Hi, I'm ${passModel.name} 👋
+*I want to visit*
+👨‍💼 Department: ${passModel.department}
+📘 Branch: ${passModel.branch}
+*My details are:*
+📇 ID (${passModel.idType}): ${passModel.idValue}
+📧 Email: ${passModel.email}
+📞 Contact: ${passModel.contactInfo}
+📍 Location: ${passModel.location}
+👤 Host: ${passModel.hostName} (${passModel.hostEmail})
+🕒 Valid for: ${passModel.days} day(s)
 
+Kindly open VMS app to verify the visitor.
+''');
+      final url =
+          "https://int.chatway.in/api/send-msg?username=Meerolabs&number=91$selectedMobile&message=$message&token=azlhZjM1dGZKclBoRHh2MlBjMkxRdz09&file_url=$bannerImageUrl&file_name=Armiet-logo-12.png";
+
+      try {
+        Dio dio = Dio();
+        await dio.get(url).then((response) {
+          if (response.statusCode == 200) {
+            print("Message sent successfully");
+          } else {
+            print("Failed to send message");
+          }
+        });
+      } catch (e) {
+        print(e);
+      }
+    } else {
+      print("Mobile No Not Selected");
+    }
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("Pass created successfully!"),
         backgroundColor: Colors.green));

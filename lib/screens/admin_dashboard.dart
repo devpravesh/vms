@@ -59,7 +59,10 @@ class AdminDashboard extends StatelessWidget {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (BuildContext context) {
                     return PassScreen(pass);
-                  }));
+                  })).then((value) {
+                    // Refresh the list of active visitors
+                    getActivePasses();
+                  });
                 });
               }));
             }),
